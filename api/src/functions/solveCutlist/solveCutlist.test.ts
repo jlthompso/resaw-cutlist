@@ -6,7 +6,7 @@ import { handler } from './solveCutlist'
 //    https://redwoodjs.com/docs/testing#testing-functions
 
 describe('solveCutlist function', () => {
-  it('Should respond with 200', async () => {
+  it('Should place one board', async () => {
     const httpEvent = mockHttpEvent({
       payload: JSON.stringify({
         roughStock: [
@@ -32,23 +32,156 @@ describe('solveCutlist function', () => {
     const data = JSON.parse(response.body)
 
     expect(response.statusCode).toBe(200)
-    expect(data).toEqual([
-      {
-        width: 12,
-        length: 12,
-        thickness: 12,
-        children: [
+    expect(data.length).toEqual(1)
+    expect(data[0].children.length).toEqual(1)
+  })
+
+  it("Should place no boards (can't cut all)", async () => {
+    const httpEvent = mockHttpEvent({
+      payload: JSON.stringify({
+        roughStock: [
           {
+            qty: 1,
             width: 12,
             length: 12,
             thickness: 12,
-            x: 0,
-            y: 0,
-            z: 0,
           },
         ],
-      },
-    ])
+        finishedBoards: [
+          {
+            qty: 2,
+            width: 12,
+            length: 12,
+            thickness: 12,
+          },
+        ],
+      }),
+    })
+
+    const response = await handler(httpEvent, null)
+    const data = JSON.parse(response.body)
+
+    expect(response.statusCode).toBe(200)
+    expect(data.length).toEqual(0)
+  })
+
+  it('Should place no boards (rough too small)', async () => {
+    const httpEvent = mockHttpEvent({
+      payload: JSON.stringify({
+        roughStock: [
+          {
+            qty: 1,
+            width: 6,
+            length: 12,
+            thickness: 12,
+          },
+        ],
+        finishedBoards: [
+          {
+            qty: 2,
+            width: 12,
+            length: 12,
+            thickness: 12,
+          },
+        ],
+      }),
+    })
+
+    const response = await handler(httpEvent, null)
+    const data = JSON.parse(response.body)
+
+    expect(response.statusCode).toBe(200)
+    expect(data.length).toEqual(0)
+  })
+
+  it('Should place two boards', async () => {
+    const httpEvent = mockHttpEvent({
+      payload: JSON.stringify({
+        roughStock: [
+          {
+            qty: 1,
+            width: 12,
+            length: 12,
+            thickness: 12,
+          },
+        ],
+        finishedBoards: [
+          {
+            qty: 1,
+            width: 12,
+            length: 12,
+            thickness: 6,
+          },
+        ],
+      }),
+    })
+
+    const response = await handler(httpEvent, null)
+    const data = JSON.parse(response.body)
+
+    expect(response.statusCode).toBe(200)
+    expect(data.length).toEqual(1)
+    expect(data[0].children.length).toEqual(1)
+  })
+
+  it('Should rotate board', async () => {
+    const httpEvent = mockHttpEvent({
+      payload: JSON.stringify({
+        roughStock: [
+          {
+            qty: 1,
+            width: 6,
+            length: 12,
+            thickness: 1,
+          },
+        ],
+        finishedBoards: [
+          {
+            qty: 1,
+            width: 12,
+            length: 6,
+            thickness: 1,
+          },
+        ],
+      }),
+    })
+
+    const response = await handler(httpEvent, null)
+    const data = JSON.parse(response.body)
+
+    expect(response.statusCode).toBe(200)
+    expect(data.length).toEqual(1)
+    expect(data[0].children.length).toEqual(1)
+  })
+
+  it('Should rotate boards', async () => {
+    const httpEvent = mockHttpEvent({
+      payload: JSON.stringify({
+        roughStock: [
+          {
+            qty: 1,
+            width: 6,
+            length: 12,
+            thickness: 2,
+          },
+        ],
+        finishedBoards: [
+          {
+            qty: 2,
+            width: 6,
+            length: 1,
+            thickness: 12,
+          },
+        ],
+      }),
+    })
+
+    const response = await handler(httpEvent, null)
+    const data = JSON.parse(response.body)
+
+    expect(response.statusCode).toBe(200)
+    expect(data.length).toEqual(1)
+    expect(data[0].children.length).toEqual(2)
   })
 
   // You can also use scenarios to test your api functions
