@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
@@ -11,9 +11,10 @@ import TableCell, { tableCellClasses } from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
-import TextField from '@mui/material/TextField'
 
-import { Form, Submit } from '@redwoodjs/forms'
+import { Form, Submit, Controller } from '@redwoodjs/forms'
+
+import TextField from 'src/components/TextField/TextField'
 
 class Board {
   width: number
@@ -62,19 +63,19 @@ const TableDataRow = ({ id, addRow, deleteRow, isLastRow }) => {
   return (
     <StyledTableRow>
       <StyledTableCell align="center">
-        <TextField required id="width" variant="standard" />
+        <TextField name={`${id}-width`} />
       </StyledTableCell>
       <StyledTableCell align="center">
-        <TextField required id="length" variant="standard" />
+        <TextField name={`${id}-length`} />
       </StyledTableCell>
       <StyledTableCell align="center">
-        <TextField required id="thickness" variant="standard" />
+        <TextField name={`${id}-thickness`} />
       </StyledTableCell>
       <StyledTableCell align="center">
-        <TextField id="quantity" type="number" variant="standard" />
+        <TextField name={`${id}-quantity`} type="number" />
       </StyledTableCell>
       <StyledTableCell align="center">
-        <TextField id="description" variant="standard" />
+        <TextField name={`${id}-description`} />
       </StyledTableCell>
       <StyledTableCell align="left">
         <IconButton onClick={() => deleteRow(id)}>
