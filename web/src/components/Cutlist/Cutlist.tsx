@@ -79,7 +79,7 @@ const TableDataRow = ({
         <TextField
           variant="standard"
           type="number"
-          {...register(`${fieldArrayName}.${index}.quantity`)}
+          {...register(`${fieldArrayName}.${index}.qty`)}
         />
       </StyledTableCell>
       <StyledTableCell align="center">
@@ -116,36 +116,43 @@ const TableDataRow = ({
 
 const Cutlist = () => {
   const onSubmit = (data) => {
-    console.log(data)
+    const roughStock = data.roughStock
+      .map(({ description: _, ...keepAttrs }) => keepAttrs)
+      .filter((board) => Object.values(board).every((val: number) => val > 0))
+    const finishedBoards = data.finishedBoards
+      .map(({ description: _, ...keepAttrs }) => keepAttrs)
+      .filter((board) => Object.values(board).every((val: number) => val > 0))
+    const json = JSON.stringify({ roughStock, finishedBoards })
+    console.log(json)
   }
 
   const { register, control, handleSubmit, reset, trigger, setError } = useForm(
     {
       defaultValues: {
-        roughBoards: Array(3).fill({
+        roughStock: Array(3).fill({
           width: null,
           length: null,
           thickness: null,
-          quantity: null,
+          qty: null,
           description: null,
         }),
         finishedBoards: Array(5).fill({
           width: null,
           length: null,
           thickness: null,
-          quantity: null,
+          qty: null,
           description: null,
         }),
       },
     }
   )
   const {
-    fields: roughBoardsFields,
-    append: roughBoardsAppend,
-    remove: roughBoardsRemove,
+    fields: roughStockFields,
+    append: roughStockAppend,
+    remove: roughStockRemove,
   } = useFieldArray({
     control,
-    name: 'roughBoards',
+    name: 'roughStock',
   })
   const {
     fields: finishedBoardsFields,
@@ -167,15 +174,15 @@ const Cutlist = () => {
             <TableHeader />
           </TableHead>
           <TableBody>
-            {roughBoardsFields.map((item, index) => (
+            {roughStockFields.map((item, index) => (
               <TableDataRow
                 key={item.id}
                 index={index}
                 register={register}
-                append={roughBoardsAppend}
-                remove={roughBoardsRemove}
-                numRows={roughBoardsFields.length}
-                fieldArrayName="roughBoards"
+                append={roughStockAppend}
+                remove={roughStockRemove}
+                numRows={roughStockFields.length}
+                fieldArrayName="roughStock"
               />
             ))}
           </TableBody>
