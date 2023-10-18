@@ -12,7 +12,7 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 
-import { Form, Submit, Controller } from '@redwoodjs/forms'
+import { Form, Submit } from '@redwoodjs/forms'
 
 import TextField from 'src/components/TextField/TextField'
 
@@ -131,7 +131,7 @@ const Cutlist = () => {
   }
 
   return (
-    <Form onSubmit={onSubmit}>
+    <Form autoComplete="off" onSubmit={onSubmit}>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} size="small">
           <TableHead>
