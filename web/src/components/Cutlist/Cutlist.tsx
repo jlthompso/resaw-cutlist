@@ -60,26 +60,34 @@ const TableDataRow = ({
       <StyledTableCell align="center">
         <TextField
           variant="standard"
-          {...register(`${fieldArrayName}.${index}.width`)}
+          {...register(`${fieldArrayName}.${index}.width`, {
+            valueAsNumber: true,
+          })}
         />
       </StyledTableCell>
       <StyledTableCell align="center">
         <TextField
           variant="standard"
-          {...register(`${fieldArrayName}.${index}.length`)}
+          {...register(`${fieldArrayName}.${index}.length`, {
+            valueAsNumber: true,
+          })}
         />
       </StyledTableCell>
       <StyledTableCell align="center">
         <TextField
           variant="standard"
-          {...register(`${fieldArrayName}.${index}.thickness`)}
+          {...register(`${fieldArrayName}.${index}.thickness`, {
+            valueAsNumber: true,
+          })}
         />
       </StyledTableCell>
       <StyledTableCell align="center">
         <TextField
           variant="standard"
           type="number"
-          {...register(`${fieldArrayName}.${index}.qty`)}
+          {...register(`${fieldArrayName}.${index}.qty`, {
+            valueAsNumber: true,
+          })}
         />
       </StyledTableCell>
       <StyledTableCell align="center">
@@ -115,15 +123,25 @@ const TableDataRow = ({
 }
 
 const Cutlist = () => {
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     const roughStock = data.roughStock
       .map(({ description: _, ...keepAttrs }) => keepAttrs)
       .filter((board) => Object.values(board).every((val: number) => val > 0))
     const finishedBoards = data.finishedBoards
       .map(({ description: _, ...keepAttrs }) => keepAttrs)
       .filter((board) => Object.values(board).every((val: number) => val > 0))
-    const json = JSON.stringify({ roughStock, finishedBoards })
-    console.log(json)
+    const response = await fetch(
+      'http://localhost:8910/.redwood/functions/solveCutlist',
+      {
+        method: 'POST',
+        body: JSON.stringify({ roughStock, finishedBoards }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    )
+    const solution = await response.json()
+    console.log(solution)
   }
 
   const { register, control, handleSubmit, reset, trigger, setError } = useForm(
