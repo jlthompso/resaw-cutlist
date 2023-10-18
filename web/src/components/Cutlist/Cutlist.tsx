@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
 import IconButton from '@mui/material/IconButton'
@@ -13,6 +15,8 @@ import TextField from '@mui/material/TextField'
 import { useForm, useFieldArray } from 'react-hook-form'
 
 import { Form, Submit } from '@redwoodjs/forms'
+
+import Solution from 'src/components/Solution/Solution'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -123,6 +127,8 @@ const TableDataRow = ({
 }
 
 const Cutlist = () => {
+  const [solution, setSolution] = useState([])
+
   const onSubmit = async (data) => {
     const roughStock = data.roughStock
       .map(({ description: _, ...keepAttrs }) => keepAttrs)
@@ -140,12 +146,11 @@ const Cutlist = () => {
         },
       }
     )
-    const solution = await response.json()
-    console.log(solution)
+    setSolution(await response.json())
   }
 
-  const { register, control, handleSubmit, reset, trigger, setError } = useForm(
-    {
+  const { register, control, handleSubmit, reset, trigger, setError, watch } =
+    useForm({
       defaultValues: {
         roughStock: Array(3).fill({
           width: null,
@@ -162,8 +167,7 @@ const Cutlist = () => {
           description: null,
         }),
       },
-    }
-  )
+    })
   const {
     fields: roughStockFields,
     append: roughStockAppend,
@@ -181,52 +185,62 @@ const Cutlist = () => {
     name: 'finishedBoards',
   })
 
+  // clear solution if input data changes
+  watch((_, { name }) => {
+    if (!name.includes('description')) {
+      setSolution([])
+    }
+  })
+
   return (
-    <Form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} size="small">
-          <TableHead>
-            <TableRow>
-              <StyledTableCell colSpan={6}>Rough Stock</StyledTableCell>
-            </TableRow>
-            <TableHeader />
-          </TableHead>
-          <TableBody>
-            {roughStockFields.map((item, index) => (
-              <TableDataRow
-                key={item.id}
-                index={index}
-                register={register}
-                append={roughStockAppend}
-                remove={roughStockRemove}
-                numRows={roughStockFields.length}
-                fieldArrayName="roughStock"
-              />
-            ))}
-          </TableBody>
-          <TableHead>
-            <TableRow>
-              <StyledTableCell colSpan={6}>Finished Pieces</StyledTableCell>
-            </TableRow>
-            <TableHeader />
-          </TableHead>
-          <TableBody>
-            {finishedBoardsFields.map((item, index) => (
-              <TableDataRow
-                key={item.id}
-                index={index}
-                register={register}
-                append={finishedBoardsAppend}
-                remove={finishedBoardsRemove}
-                numRows={finishedBoardsFields.length}
-                fieldArrayName="finishedBoards"
-              />
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <Submit>Calculate</Submit>
-    </Form>
+    <>
+      <Form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} size="small">
+            <TableHead>
+              <TableRow>
+                <StyledTableCell colSpan={6}>Rough Stock</StyledTableCell>
+              </TableRow>
+              <TableHeader />
+            </TableHead>
+            <TableBody>
+              {roughStockFields.map((item, index) => (
+                <TableDataRow
+                  key={item.id}
+                  index={index}
+                  register={register}
+                  append={roughStockAppend}
+                  remove={roughStockRemove}
+                  numRows={roughStockFields.length}
+                  fieldArrayName="roughStock"
+                />
+              ))}
+            </TableBody>
+            <TableHead>
+              <TableRow>
+                <StyledTableCell colSpan={6}>Finished Pieces</StyledTableCell>
+              </TableRow>
+              <TableHeader />
+            </TableHead>
+            <TableBody>
+              {finishedBoardsFields.map((item, index) => (
+                <TableDataRow
+                  key={item.id}
+                  index={index}
+                  register={register}
+                  append={finishedBoardsAppend}
+                  remove={finishedBoardsRemove}
+                  numRows={finishedBoardsFields.length}
+                  fieldArrayName="finishedBoards"
+                />
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <Submit>Calculate</Submit>
+      </Form>
+      {solution.length ? <Solution data={solution} /> : null}
+    </>
   )
 }
 
