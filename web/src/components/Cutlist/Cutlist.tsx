@@ -1,5 +1,3 @@
-import { useState } from 'react'
-
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
 import IconButton from '@mui/material/IconButton'
@@ -11,20 +9,10 @@ import TableCell, { tableCellClasses } from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
+import TextField from '@mui/material/TextField'
+import { useForm, useFieldArray } from 'react-hook-form'
 
 import { Form, Submit } from '@redwoodjs/forms'
-
-import TextField from 'src/components/TextField/TextField'
-
-class Board {
-  width: number
-  length: number
-  thickness: number
-  quantity: number
-  description: string
-
-  constructor(public id: string) {}
-}
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -59,30 +47,65 @@ const TableHeader = () => {
   )
 }
 
-const TableDataRow = ({ id, addRow, deleteRow, isLastRow }) => {
+const TableDataRow = ({
+  index,
+  register,
+  append,
+  remove,
+  numRows,
+  fieldArrayName,
+}) => {
   return (
     <StyledTableRow>
       <StyledTableCell align="center">
-        <TextField name={`${id}-width`} />
+        <TextField
+          variant="standard"
+          {...register(`${fieldArrayName}.${index}.width`)}
+        />
       </StyledTableCell>
       <StyledTableCell align="center">
-        <TextField name={`${id}-length`} />
+        <TextField
+          variant="standard"
+          {...register(`${fieldArrayName}.${index}.length`)}
+        />
       </StyledTableCell>
       <StyledTableCell align="center">
-        <TextField name={`${id}-thickness`} />
+        <TextField
+          variant="standard"
+          {...register(`${fieldArrayName}.${index}.thickness`)}
+        />
       </StyledTableCell>
       <StyledTableCell align="center">
-        <TextField name={`${id}-quantity`} type="number" />
+        <TextField
+          variant="standard"
+          type="number"
+          {...register(`${fieldArrayName}.${index}.quantity`)}
+        />
       </StyledTableCell>
       <StyledTableCell align="center">
-        <TextField name={`${id}-description`} />
+        <TextField
+          variant="standard"
+          {...register(`${fieldArrayName}.${index}.description`)}
+        />
       </StyledTableCell>
       <StyledTableCell align="left">
-        <IconButton onClick={() => deleteRow(id)}>
-          <RemoveIcon />
-        </IconButton>
-        {isLastRow ? (
-          <IconButton onClick={() => addRow()}>
+        {numRows > 1 ? (
+          <IconButton onClick={() => remove(index)}>
+            <RemoveIcon />
+          </IconButton>
+        ) : null}
+        {index === numRows - 1 ? (
+          <IconButton
+            onClick={() =>
+              append({
+                width: null,
+                length: null,
+                thickness: null,
+                quantity: null,
+                description: null,
+              })
+            }
+          >
             <AddIcon />
           </IconButton>
         ) : null}
@@ -92,46 +115,49 @@ const TableDataRow = ({ id, addRow, deleteRow, isLastRow }) => {
 }
 
 const Cutlist = () => {
-  const [roughRowIdCounter, setRoughRowIdCounter] = useState(3)
-  const [finishedRowIdCounter, setFinishedRowIdCounter] = useState(5)
-  const [roughRows, setRoughRows] = useState(
-    [...Array(roughRowIdCounter)].map((_, i) => new Board(`rough-${i}`))
-  )
-  const [finishedRows, setFinishedRows] = useState(
-    [...Array(finishedRowIdCounter)].map((_, i) => new Board(`finished-${i}`))
-  )
-
-  const addRoughRow = () => {
-    setRoughRows([...roughRows, new Board(`rough-${roughRowIdCounter}`)])
-    setRoughRowIdCounter(roughRowIdCounter + 1)
-  }
-
-  const addFinishedRow = () => {
-    setFinishedRows([
-      ...finishedRows,
-      new Board(`finished-${finishedRowIdCounter}`),
-    ])
-    setFinishedRowIdCounter(finishedRowIdCounter + 1)
-  }
-
-  const deleteRoughRow = (id: string) => {
-    if (roughRows.length > 1) {
-      setRoughRows(roughRows.filter((row: Board) => row.id !== id))
-    }
-  }
-
-  const deleteFinishedRow = (id: string) => {
-    if (finishedRows.length > 1) {
-      setFinishedRows(finishedRows.filter((row: Board) => row.id !== id))
-    }
-  }
-
   const onSubmit = (data) => {
     console.log(data)
   }
 
+  const { register, control, handleSubmit, reset, trigger, setError } = useForm(
+    {
+      defaultValues: {
+        roughBoards: Array(3).fill({
+          width: null,
+          length: null,
+          thickness: null,
+          quantity: null,
+          description: null,
+        }),
+        finishedBoards: Array(5).fill({
+          width: null,
+          length: null,
+          thickness: null,
+          quantity: null,
+          description: null,
+        }),
+      },
+    }
+  )
+  const {
+    fields: roughBoardsFields,
+    append: roughBoardsAppend,
+    remove: roughBoardsRemove,
+  } = useFieldArray({
+    control,
+    name: 'roughBoards',
+  })
+  const {
+    fields: finishedBoardsFields,
+    append: finishedBoardsAppend,
+    remove: finishedBoardsRemove,
+  } = useFieldArray({
+    control,
+    name: 'finishedBoards',
+  })
+
   return (
-    <Form autoComplete="off" onSubmit={onSubmit}>
+    <Form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} size="small">
           <TableHead>
@@ -141,13 +167,15 @@ const Cutlist = () => {
             <TableHeader />
           </TableHead>
           <TableBody>
-            {roughRows.map((board) => (
+            {roughBoardsFields.map((item, index) => (
               <TableDataRow
-                key={board.id}
-                id={board.id}
-                addRow={addRoughRow}
-                deleteRow={deleteRoughRow}
-                isLastRow={board.id === roughRows.at(-1).id}
+                key={item.id}
+                index={index}
+                register={register}
+                append={roughBoardsAppend}
+                remove={roughBoardsRemove}
+                numRows={roughBoardsFields.length}
+                fieldArrayName="roughBoards"
               />
             ))}
           </TableBody>
@@ -158,13 +186,15 @@ const Cutlist = () => {
             <TableHeader />
           </TableHead>
           <TableBody>
-            {finishedRows.map((board) => (
+            {finishedBoardsFields.map((item, index) => (
               <TableDataRow
-                key={board.id}
-                id={board.id}
-                addRow={addFinishedRow}
-                deleteRow={deleteFinishedRow}
-                isLastRow={board.id === finishedRows.at(-1).id}
+                key={item.id}
+                index={index}
+                register={register}
+                append={finishedBoardsAppend}
+                remove={finishedBoardsRemove}
+                numRows={finishedBoardsFields.length}
+                fieldArrayName="finishedBoards"
               />
             ))}
           </TableBody>
