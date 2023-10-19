@@ -16,6 +16,7 @@ import { useForm, useFieldArray } from 'react-hook-form'
 
 import { Form, Submit } from '@redwoodjs/forms'
 
+import Render from 'src/components/Render/Render'
 import Solution from 'src/components/Solution/Solution'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -240,6 +241,13 @@ const Cutlist = () => {
         <Submit>Calculate</Submit>
       </Form>
       {solution.length ? <Solution data={solution} /> : null}
+      {solution.map((roughBoard, i) => (
+        <Render
+          key={'render-' + i}
+          dimensions={roughBoard.dimensions}
+          finishedBoards={roughBoard.children}
+        />
+      ))}
     </>
   )
 }

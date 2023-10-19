@@ -46,7 +46,7 @@ function Row(props: { row }) {
                 </TableHead>
                 <TableBody>
                   {row.children.map((finishedBoard, i) => (
-                    <TableRow key={`finished-${i}`}>
+                    <TableRow key={'finished' + i}>
                       <TableCell align="center" component="th" scope="row">
                         {`(${finishedBoard.origin[0]}, ${finishedBoard.origin[1]}, ${finishedBoard.origin[2]})`}
                       </TableCell>
@@ -72,7 +72,6 @@ function Row(props: { row }) {
 }
 
 const Solution = ({ data }) => {
-  console.log(data)
   return (
     <TableContainer component={Paper}>
       <Table>
@@ -86,7 +85,7 @@ const Solution = ({ data }) => {
         </TableHead>
         <TableBody>
           {data.map((row, i) => (
-            <Row key={`rough-${i}`} row={row} />
+            <Row key={'rough-' + i} row={row} />
           ))}
         </TableBody>
       </Table>

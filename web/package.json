@@ -16,12 +16,16 @@
     "@fontsource/roboto": "^5.0.8",
     "@mui/icons-material": "^5.14.13",
     "@mui/material": "^5.14.13",
+    "@react-three/drei": "^9.88.4",
+    "@react-three/fiber": "^8.14.6",
     "@redwoodjs/forms": "6.3.2",
     "@redwoodjs/router": "6.3.2",
     "@redwoodjs/web": "6.3.2",
+    "@types/three": "^0.157.2",
     "prop-types": "15.8.1",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "three": "^0.157.0"
   },
   "devDependencies": {
     "@redwoodjs/vite": "6.3.2"
