@@ -141,17 +141,24 @@ class RoughBoard extends Board {
     if (!this.children.length) {
       return this.#placeBoardOnGrid(board, [0, 0, 0])
     } else {
-      for (const child of this.children) {
-        const [x, y, z] = child.origin
-        const w = child.width
-        const l = child.length
-        const t = child.thickness
-        const pivots = [
-          [x, y + l, z], // back lower right corner (longer stock)
-          [x + w, y, z], // front lower left corner (wider stock)
-          [x, y, z + t], // back upper left corner (thicker stock)
-        ]
-        for (const pivot of pivots) {
+      for (let i = 0; i < 3; i++) {
+        for (const child of this.children) {
+          const [x, y, z] = child.origin
+          const w = child.width
+          const l = child.length
+          const t = child.thickness
+          let pivot: number[]
+          switch (i) {
+            case 0:
+              pivot = [x, y + l, z] // back lower right corner (longer stock)
+              break
+            case 1:
+              pivot = [x + w, y, z] // front lower left corner (wider stock)
+              break
+            default:
+              pivot = [x, y, z + t] // back upper left corner (thicker stock)
+              break
+          }
           if (this.#placeBoardOnGrid(board, pivot)) return true
         }
       }
