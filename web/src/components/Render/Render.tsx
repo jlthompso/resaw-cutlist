@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 
 import Box from '@mui/material/Box'
-import { OrbitControls } from '@react-three/drei'
+import { OrbitControls, Edges } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 
 function RoughBoard(props) {
@@ -37,6 +37,7 @@ function FinishedBoard(props) {
     >
       <boxGeometry args={props.dimensions} />
       <meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} />
+      <Edges color="grey" />
     </mesh>
   )
 }
