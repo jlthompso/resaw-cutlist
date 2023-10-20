@@ -23,11 +23,16 @@ function RoughBoard(props) {
 function FinishedBoard(props) {
   const meshRef = useRef()
   const [hovered, setHover] = useState(false)
+
   return (
     <mesh
       {...props}
       ref={meshRef}
-      onPointerOver={() => setHover(true)}
+      onPointerMove={(e) => {
+        e.intersections[0].object.uuid === e.object.uuid
+          ? setHover(true)
+          : setHover(false)
+      }}
       onPointerOut={() => setHover(false)}
     >
       <boxGeometry args={props.dimensions} />
